@@ -2,17 +2,54 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"math/rand"
+	"net/http"
+	"os"
+
+	"github.com/pkg/errors"
 )
 
 func main() {
-	run()
+	result, err := run()
+
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+
+	fmt.Print(result)
 }
 
-func run() {
+func run() (string, error) {
+	os.Setenv("HTTP_PROXY", "socks5://localhost:9050")
+
 	address := generateOnionAddress()
 
-	fmt.Println(address)
+	resp, err := http.Get(address)
+
+	if err != nil {
+		// TODO: error handling
+		return "", err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		// TODO: error handling
+		return "", errors.New(fmt.Sprintf("unsuccessful request to %s: %s", address, resp.Status))
+	}
+
+	defer resp.Body.Close()
+
+	bytes, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		// TODO error handling
+		return "", err
+	}
+
+	body := string(bytes)
+
+	return body, nil
 }
 
 func generateOnionAddress() string {
@@ -24,5 +61,5 @@ func generateOnionAddress() string {
 		url += string(letters[rand.Intn(len(letters))])
 	}
 
-	return url + ".onion"
+	return "http://" + url + ".onion"
 }
