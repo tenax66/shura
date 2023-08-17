@@ -1,4 +1,4 @@
-package main
+package shura
 
 import (
 	"fmt"
@@ -8,25 +8,9 @@ import (
 	"os"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 )
 
-func main() {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
-
-	result, err := run()
-
-	if err != nil {
-		sugar.Warn(err)
-		return
-	}
-
-	fmt.Print(result)
-}
-
-func run() (string, error) {
+func Run() (string, error) {
 	os.Setenv("HTTP_PROXY", "socks5://localhost:9050")
 
 	address := generateOnionAddress()
