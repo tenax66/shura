@@ -8,13 +8,18 @@ import (
 	"os"
 
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 func main() {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
 	result, err := run()
 
 	if err != nil {
-		fmt.Print(err)
+		sugar.Warn(err)
 		return
 	}
 
