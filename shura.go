@@ -23,11 +23,6 @@ func fetchContent(address string) (string, error) {
 		return "", err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		// TODO: error handling
-		return "", errors.New(fmt.Sprintf("unsuccessful request to %s: %s", address, resp.Status))
-	}
-
 	defer resp.Body.Close()
 
 	bytes, err := io.ReadAll(resp.Body)
@@ -38,6 +33,11 @@ func fetchContent(address string) (string, error) {
 	}
 
 	body := string(bytes)
+
+	if resp.StatusCode != http.StatusOK {
+		// TODO: error handling
+		return body, errors.New(fmt.Sprintf("unsuccessful request to %s: %s", address, resp.Status))
+	}
 
 	return body, nil
 }
