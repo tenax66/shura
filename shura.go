@@ -12,6 +12,10 @@ import (
 func Run() (string, error) {
 	address := generateOnionAddress()
 
+	return fetchContent(address)
+}
+
+func fetchContent(address string) (string, error) {
 	resp, err := http.Get(address)
 
 	if err != nil {
