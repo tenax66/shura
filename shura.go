@@ -5,14 +5,11 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
-	"os"
 
 	"github.com/pkg/errors"
 )
 
 func Run() (string, error) {
-	os.Setenv("HTTP_PROXY", "socks5://localhost:9050")
-
 	address := generateOnionAddress()
 
 	resp, err := http.Get(address)
