@@ -6,6 +6,7 @@ import (
 )
 
 func Test_tryAccess(t *testing.T) {
+	// TODO: assert whether a screenshot is taken
 	expected, _ := os.ReadFile("testdata/example_com.txt")
 
 	type args struct {
