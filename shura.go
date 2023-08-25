@@ -93,10 +93,10 @@ func generateOnionAddress() string {
 	const addressLength = 56
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 
-	var url string
+	var name string
 	for i := 0; i < addressLength; i++ {
-		url += string(letters[rand.Intn(len(letters))])
+		name += string(letters[rand.Intn(len(letters))])
 	}
 
-	return "http://" + url + ".onion"
+	return "http://" + name + ".onion"
 }
