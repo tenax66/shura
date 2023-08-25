@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/chromedp/chromedp"
@@ -34,12 +35,22 @@ func tryAccess(address string) (string, error) {
 		return content, err
 	}
 
-	takeScreenshot(address)
+	if err = takeScreenshot(address); err != nil {
+		return content, err
+	}
 
 	return content, nil
 }
 
-func takeScreenshot(address string) {
+func takeScreenshot(address string) error {
+
+	const saveDir = "screenshots"
+
+	if err := createScreenshotsDirectory(saveDir); err != nil {
+		// logging
+		return err
+	}
+
 	// create context
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
@@ -51,15 +62,19 @@ func takeScreenshot(address string) {
 	// capture entire browser viewport, returning png with quality=90
 	if err := chromedp.Run(ctx, fullScreenshot(address, 90, &buf)); err != nil {
 		// logging
+		return err
 	}
 
 	// Get the domain name excluding TLD (.onion)
 	parsedURL, _ := url.Parse(address)
 	name := strings.Split(parsedURL.Host, ".")[0]
 
-	if err := os.WriteFile(name+".png", buf, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(saveDir, name+".png"), buf, 0o644); err != nil {
 		// logging
+		return err
 	}
+
+	return nil
 }
 
 func fullScreenshot(urlstr string, quality int, res *[]byte) chromedp.Tasks {
@@ -67,6 +82,19 @@ func fullScreenshot(urlstr string, quality int, res *[]byte) chromedp.Tasks {
 		chromedp.Navigate(urlstr),
 		chromedp.FullScreenshot(res, quality),
 	}
+}
+
+func createScreenshotsDirectory(dirName string) error {
+	_, err := os.Stat(dirName)
+	if os.IsNotExist(err) {
+		err := os.Mkdir(dirName, os.ModePerm)
+		if err != nil {
+			// logging
+			return err
+		}
+	}
+
+	return nil
 }
 
 func fetchContent(address string) (string, error) {
