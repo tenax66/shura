@@ -6,7 +6,9 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/chromedp/chromedp"
 	"github.com/pkg/errors"
@@ -50,7 +52,12 @@ func takeScreenshot(address string) {
 	if err := chromedp.Run(ctx, fullScreenshot(address, 90, &buf)); err != nil {
 		// logging
 	}
-	if err := os.WriteFile("fullScreenshot.png", buf, 0o644); err != nil {
+
+	// Get the domain name excluding TLD (.onion)
+	parsedURL, _ := url.Parse(address)
+	name := strings.Split(parsedURL.Host, ".")[0]
+
+	if err := os.WriteFile(name+".png", buf, 0o644); err != nil {
 		// logging
 	}
 }
