@@ -35,7 +35,7 @@ func tryAccess(address string) (string, error) {
 		return content, err
 	}
 
-	if err = takeScreenshot(address); err != nil {
+	if err := takeScreenshot(address); err != nil {
 		return content, err
 	}
 
