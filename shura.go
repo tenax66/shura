@@ -12,11 +12,20 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Run() (string, error) {
-	address := generateOnionAddress()
-	// TODO: make this address mockable
-	// address := "https://example.com"
+func Run() {
 
+	const TRY = 100
+
+	for i := 0; i < TRY; i++ {
+		address := generateOnionAddress()
+		_, err := tryAccess(address)
+		if err != nil {
+			//TODO: logging
+		}
+	}
+}
+
+func tryAccess(address string) (string, error) {
 	content, err := fetchContent(address)
 
 	if err != nil {

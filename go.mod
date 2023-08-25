@@ -5,7 +5,6 @@ go 1.20
 require (
 	github.com/chromedp/chromedp v0.9.2
 	github.com/pkg/errors v0.9.1
-	go.uber.org/zap v1.25.0
 )
 
 require (
@@ -16,6 +15,5 @@ require (
 	github.com/gobwas/ws v1.3.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 )
