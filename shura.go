@@ -15,11 +15,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Run() {
+func Run(repeats int) {
 
-	const TRY = 100
-
-	for i := 0; i < TRY; i++ {
+	for i := 0; i < repeats; i++ {
 		address := generateOnionAddress()
 		_, err := tryAccess(address)
 		if err != nil {

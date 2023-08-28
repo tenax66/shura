@@ -9,6 +9,7 @@ import (
 func main() {
 	os.Setenv("HTTP_PROXY", "socks5://localhost:9050")
 
-	shura.Run()
+	const REPEATS = 10000
+	shura.Run(REPEATS)
 
 }
