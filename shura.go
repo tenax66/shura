@@ -124,11 +124,12 @@ func fetchContent(address string) (string, error) {
 
 func generateOnionAddress() string {
 	const addressLength = 56
-	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
+	const base32 = "abcdefghijklmnopqrstuvwxyz234567"
+	const n = len(base32)
 
 	var name string
 	for i := 0; i < addressLength; i++ {
-		name += string(letters[rand.Intn(len(letters))])
+		name += string(base32[rand.Intn(n)])
 	}
 
 	return "http://" + name + ".onion"
