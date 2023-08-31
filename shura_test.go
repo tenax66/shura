@@ -2,33 +2,30 @@ package shura
 
 import (
 	"os"
+	"reflect"
+	"regexp"
 	"testing"
 )
 
-func Test_tryAccess(t *testing.T) {
-	// TODO: assert whether a screenshot is taken
-	expected, _ := os.ReadFile("testdata/example_com.txt")
+func Test_extractLinks(t *testing.T) {
+
+	html, _ := os.ReadFile("testdata/example_com.txt")
 
 	type args struct {
-		address string
+		html  string
+		regex *regexp.Regexp
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr bool
+		name string
+		args args
+		want []string
 	}{
-		{"normal", args{"https://example.com/"}, string(expected), false},
+		{"normal", args{string(html), regexp.MustCompile(`http.*\.org`)}, []string{"https://www.iana.org"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tryAccess(tt.args.address)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("tryAccess() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("tryAccess() = %v, want %v", got, tt.want)
+			if got := extractLinks(tt.args.html, tt.args.regex); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("extractLinks() = %v, want %v", got, tt.want)
 			}
 		})
 	}
