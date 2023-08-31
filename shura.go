@@ -1,33 +1,41 @@
 package shura
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
+
+	"go.uber.org/zap"
 )
+
+var sugar *zap.SugaredLogger
+
+func init() {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync() // flushes buffer, if any
+	sugar = logger.Sugar()
+}
 
 func Run(url string) {
 	regex := regexp.MustCompile(`http.*[a-z2-7]{56}\.onion`)
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Error fetching the URL:", err)
+		sugar.Error("Error fetching the URL: ", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
+		sugar.Error("Error reading response body: ", err)
 		return
 	}
 
-	fmt.Print(string(body))
 	links := extractLinks(string(body), regex)
 
 	for _, link := range links {
 		// TODO: save url
-		fmt.Println(link)
+		sugar.Info("URL: ", link)
 	}
 }
 
