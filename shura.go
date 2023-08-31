@@ -17,7 +17,7 @@ func init() {
 }
 
 func Run(url string) {
-	regex := regexp.MustCompile(`http.*[a-z2-7]{56}\.onion`)
+	regex := regexp.MustCompile(`(http|https)://[a-z2-7]{56}\.onion`)
 	resp, err := http.Get(url)
 	if err != nil {
 		sugar.Error("Error fetching the URL: ", err)
