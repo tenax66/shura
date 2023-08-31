@@ -8,6 +8,7 @@ import (
 )
 
 func Run(url string) {
+	regex := regexp.MustCompile(`http.*[a-z2-7]{56}\.onion`)
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error fetching the URL:", err)
@@ -22,7 +23,7 @@ func Run(url string) {
 	}
 
 	fmt.Print(string(body))
-	links := extractLinks(string(body), regexp.MustCompile(`http.*[a-z2-7]{56}\.onion`))
+	links := extractLinks(string(body), regex)
 
 	for _, link := range links {
 		// TODO: save url
