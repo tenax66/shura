@@ -20,8 +20,7 @@ func init() {
 	sugar = logger.Sugar()
 }
 
-func Collect() {
-	const url = "https://ja.wikipedia.org/wiki/Ahmia"
+func Collect(startUrls []string) {
 	db, err := sql.Open("sqlite3", "links.db")
 	if err != nil {
 		sugar.Info("Error connecting to the database:", err)
@@ -35,19 +34,20 @@ func Collect() {
 		return
 	}
 
-	// TODO: replace this link with collected links
-	links, err := Run(url)
-	if err != nil {
-		sugar.Error("Error creating table:", err)
-		return
-	}
-
-	for _, link := range links {
-		_, err = db.Exec("INSERT INTO links (link) VALUES (?)", link)
+	for _, url := range startUrls {
+		links, err := Run(url)
 		if err != nil {
-			//TODO: ignore UNIQUE constraint errors
-			fmt.Println("Error inserting link:", err)
+			sugar.Error("Error creating table:", err)
 			return
+		}
+
+		for _, link := range links {
+			_, err = db.Exec("INSERT INTO links (link) VALUES (?)", link)
+			if err != nil {
+				//TODO: ignore UNIQUE constraint errors
+				fmt.Println("Error inserting link:", err)
+				return
+			}
 		}
 	}
 }
