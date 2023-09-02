@@ -35,7 +35,7 @@ func Collect(startUrls []string) {
 	}
 
 	for _, url := range startUrls {
-		links, err := Run(url)
+		links, err := Extract(url)
 		if err != nil {
 			sugar.Error("Error creating table:", err)
 			return
@@ -52,7 +52,7 @@ func Collect(startUrls []string) {
 	}
 }
 
-func Run(url string) ([]string, error) {
+func Extract(url string) ([]string, error) {
 
 	regex := regexp.MustCompile(`(http|https)://[a-z2-7]{56}\.onion`)
 	resp, err := http.Get(url)
