@@ -24,14 +24,14 @@ func Collect(startUrls []string) {
 
 	db, err := initDB("links.db")
 	if err != nil {
-		sugar.Error("Error initializing table:", err)
+		sugar.Error("Failed to initialize database:", err)
 		return
 	}
 
 	for _, url := range startUrls {
 		links, err := Extract(url)
 		if err != nil {
-			sugar.Error("Error creating table:", err)
+			sugar.Error("Error occured while extracting .onion urls:", err)
 			return
 		}
 
@@ -39,7 +39,7 @@ func Collect(startUrls []string) {
 			_, err = db.Exec("INSERT INTO links (link) VALUES (?)", link)
 			if err != nil {
 				//TODO: ignore UNIQUE constraint errors
-				fmt.Println("Error inserting link:", err)
+				fmt.Println("Error occured while saving an url:", err)
 				return
 			}
 		}
@@ -51,14 +51,14 @@ func Extract(url string) ([]string, error) {
 	regex := regexp.MustCompile(`(http|https)://[a-z2-7]{56}\.onion`)
 	resp, err := http.Get(url)
 	if err != nil {
-		sugar.Error("Error fetching the URL: ", err)
+		sugar.Error("Error occured while fetching the content: ", err)
 		return []string{""}, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		sugar.Error("Error reading response body: ", err)
+		sugar.Error("Error occured while reading response body: ", err)
 		return []string{""}, err
 	}
 
@@ -77,16 +77,16 @@ func extractLinks(html string, regex *regexp.Regexp) []string {
 	return links
 }
 
-func initDB(name string) (*sql.DB, error){
+func initDB(name string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", name)
 	if err != nil {
-		sugar.Info("Error connecting to the database:", err)
+		sugar.Info("Error occured while connecting to the database:", err)
 		return nil, err
 	}
 
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS links (link TEXT PRIMARY KEY)")
 	if err != nil {
-		sugar.Error("Error creating table:", err)
+		sugar.Error("Failed to create a table:", err)
 		return nil, err
 	}
 
