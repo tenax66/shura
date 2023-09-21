@@ -14,6 +14,8 @@ import (
 
 var sugar *zap.SugaredLogger
 
+const LINKS = "links.db"
+
 func init() {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() // flushes buffer, if any
@@ -22,7 +24,7 @@ func init() {
 
 func Collect(startUrls []string) {
 
-	db, err := initDB("links.db")
+	db, err := initDB(LINKS)
 	if err != nil {
 		sugar.Error("Failed to initialize database:", err)
 		return
@@ -64,6 +66,44 @@ func Extract(url string) ([]string, error) {
 
 	return extractLinks(string(body), regex), nil
 
+}
+
+func LoadAllSavedLinks() ([]string, error) {
+	db, err := initDB(LINKS)
+	if err != nil {
+		sugar.Error("Failed to initialize database:", err)
+		return nil, err
+	}
+
+	defer db.Close()
+
+    query := "SELECT link FROM links"
+
+    rows, err := db.Query(query)
+    if err != nil {
+        fmt.Println("Failed to execute query:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var links []string
+
+    for rows.Next() {
+        var link string
+
+        err := rows.Scan(&link)
+        if err != nil {
+            return nil, err
+        }
+
+        links = append(links, link)
+    }
+
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+
+    return links, nil
 }
 
 func extractLinks(html string, regex *regexp.Regexp) []string {
