@@ -30,25 +30,30 @@ func Collect(startUrls []string) {
 		return
 	}
 
+	defer db.Close()
+
 	for _, url := range startUrls {
 		links, err := Extract(url)
 		if err != nil {
-			sugar.Error("Error occured while extracting .onion urls:", err)
-			return
+			sugar.Warn("Error occured while extracting .onion urls:", err)
+		}
+		for _, link := range links {
+			sugar.Infof("Extracted: %s", link)
 		}
 
 		for _, link := range links {
 			_, err = db.Exec("INSERT INTO links (link) VALUES (?)", link)
 			if err != nil {
 				//TODO: ignore UNIQUE constraint errors
-				fmt.Println("Error occured while saving an url:", err)
-				return
+				sugar.Warn("This url is already known:", err)
 			}
 		}
 	}
 }
 
 func Extract(url string) ([]string, error) {
+
+	sugar.Infof("Extracting from %s", url)
 
 	regex := regexp.MustCompile(`(http|https)://[a-z2-7]{56}\.onion`)
 	resp, err := http.Get(url)
@@ -77,33 +82,33 @@ func LoadAllSavedLinks() ([]string, error) {
 
 	defer db.Close()
 
-    query := "SELECT link FROM links"
+	query := "SELECT link FROM links"
 
-    rows, err := db.Query(query)
-    if err != nil {
-        fmt.Println("Failed to execute query:", err)
-        return nil, err
-    }
-    defer rows.Close()
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println("Failed to execute query:", err)
+		return nil, err
+	}
+	defer rows.Close()
 
-    var links []string
+	var links []string
 
-    for rows.Next() {
-        var link string
+	for rows.Next() {
+		var link string
 
-        err := rows.Scan(&link)
-        if err != nil {
-            return nil, err
-        }
+		err := rows.Scan(&link)
+		if err != nil {
+			return nil, err
+		}
 
-        links = append(links, link)
-    }
+		links = append(links, link)
+	}
 
-    if err := rows.Err(); err != nil {
-        return nil, err
-    }
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 
-    return links, nil
+	return links, nil
 }
 
 func extractLinks(html string, regex *regexp.Regexp) []string {
