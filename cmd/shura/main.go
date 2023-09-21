@@ -8,5 +8,8 @@ import (
 
 func main() {
 	os.Setenv("HTTP_PROXY", "socks5://localhost:9050")
-	shura.Collect([]string{"https://example.com", "https://ja.wikipedia.org/wiki/Ahmia"})
+
+	links, _ := shura.LoadAllSavedLinks()
+
+	shura.Collect(links)
 }
