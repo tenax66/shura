@@ -21,16 +21,10 @@ func init() {
 }
 
 func Collect(startUrls []string) {
-	db, err := sql.Open("sqlite3", "links.db")
-	if err != nil {
-		sugar.Info("Error connecting to the database:", err)
-		return
-	}
-	defer db.Close()
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS links (link TEXT PRIMARY KEY)")
+	db, err := initDB("links.db")
 	if err != nil {
-		sugar.Error("Error creating table:", err)
+		sugar.Error("Error initializing table:", err)
 		return
 	}
 
@@ -81,4 +75,20 @@ func extractLinks(html string, regex *regexp.Regexp) []string {
 	}
 
 	return links
+}
+
+func initDB(name string) (*sql.DB, error){
+	db, err := sql.Open("sqlite3", name)
+	if err != nil {
+		sugar.Info("Error connecting to the database:", err)
+		return nil, err
+	}
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS links (link TEXT PRIMARY KEY)")
+	if err != nil {
+		sugar.Error("Error creating table:", err)
+		return nil, err
+	}
+
+	return db, err
 }
